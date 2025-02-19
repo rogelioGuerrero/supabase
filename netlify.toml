@@ -1,0 +1,37 @@
+[build]
+  command = "npm run netlify:build"
+  functions = "netlify/functions"
+  publish = "."
+
+[build.environment]
+  NODE_VERSION = "18.18.0"
+  NODE_OPTIONS = "--max_old_space_size=4096"
+  NPM_FLAGS = "--verbose"
+
+[dev]
+  port = 3000
+
+[functions]
+  node_bundler = "esbuild"
+  included_files = ["dist/**", ".env"]
+
+[[redirects]]
+  from = "/generic/productos"
+  to = "/.netlify/functions/app"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type, x-api-key"
+
+[context.production]
+  environment = { NODE_ENV = "production" }
+
+[context.deploy-preview]
+  environment = { NODE_ENV = "development" }
+
+[context.branch-deploy]
+  environment = { NODE_ENV = "development" }
