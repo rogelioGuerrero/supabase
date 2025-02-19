@@ -10,7 +10,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "lint": "eslint . --ext .ts",
-    "netlify:build": "npm install -g typescript; npm install; npm run build; npm prune --production",
+    "netlify:build": "npm install -g typescript; npm install; npm run build; echo 'Contenido de dist:'; ls -l dist; echo 'Contenido de netlify/functions:'; ls -l netlify/functions; npm prune --production",
     "clean": "rimraf dist",
     "prebuild": "npm run clean"
   },
