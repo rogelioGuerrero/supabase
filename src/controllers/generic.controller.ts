@@ -94,22 +94,50 @@ export class GenericController<T extends GenericModel> {
 
   // Actualizar un registro existente
   private async update(req: Request, res: Response) {
-    const { id, data } = req.body;
+    try {
+      const { id, data } = req.body;
 
-    const { data: updatedRecord, error } = await this.supabase
-      .from(this.tableName)
-      .update(data)
-      .eq('id', id)
-      .select();
+      // Validación básica
+      if (!id) {
+        return res.status(400).json({ 
+          error: 'Datos inválidos', 
+          message: 'Se requiere un ID para actualizar' 
+        });
+      }
 
-    if (error) {
-      return res.status(400).json({ 
-        error: 'Error al actualizar registro', 
-        details: error.message 
+      if (!data || typeof data !== 'object') {
+        return res.status(400).json({ 
+          error: 'Datos inválidos', 
+          message: 'Se requiere un objeto de datos válido' 
+        });
+      }
+
+      // Actualización directa
+      const { error } = await this.supabase
+        .from(this.tableName)
+        .update(data)
+        .eq('id', id);
+
+      if (error) {
+        console.error(`Error de Supabase al actualizar en ${this.tableName}:`, error);
+        return res.status(400).json({ 
+          error: 'Error al actualizar registro', 
+          details: error.message 
+        });
+      }
+
+      return res.status(200).json({ 
+        message: 'Registro actualizado exitosamente', 
+        id: id,
+        data: data 
+      });
+    } catch (error) {
+      console.error('Error inesperado:', error);
+      return res.status(500).json({ 
+        error: 'Error interno del servidor', 
+        details: error instanceof Error ? error.message : 'Error desconocido' 
       });
     }
-
-    return res.status(200).json(updatedRecord);
   }
 
   // Eliminar un registro
