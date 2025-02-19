@@ -1,27 +1,29 @@
 {
   "name": "backend-api-supabase",
   "version": "1.0.0",
-  "description": "Backend API for Supabase project",
+  "description": "Backend API for Productos using Supabase",
   "main": "dist/app.js",
   "scripts": {
-    "start": "node -r dotenv/config dist/app.js dotenv_config_path=.env.example",
-    "dev": "nodemon -r dotenv/config src/app.ts dotenv_config_path=.env.example",
     "build": "tsc",
+    "start": "node -r dotenv/config dist/app.js",
+    "dev": "nodemon -r dotenv/config src/app.ts",
     "test": "jest",
     "test:watch": "jest --watch",
-    "lint": "eslint . --ext .ts"
+    "lint": "eslint . --ext .ts",
+    "netlify:build": "npm run build && npm prune --production"
   },
   "keywords": [
     "supabase",
-    "express",
-    "typescript"
+    "api",
+    "productos"
   ],
-  "author": "",
-  "license": "ISC",
+  "author": "Tu Nombre",
+  "license": "MIT",
   "type": "commonjs",
   "dependencies": {
-    "@netlify/functions": "^3.0.0",
     "@supabase/supabase-js": "^2.48.1",
+    "@types/cors": "^2.8.17",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "winston": "^3.17.0",

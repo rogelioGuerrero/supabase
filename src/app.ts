@@ -1,11 +1,26 @@
 import express, { Request, Response, NextFunction } from 'express';
-import 'dotenv/config';
+import type { CorsOptions } from 'cors';
+import cors from 'cors';
+import dotenv from 'dotenv';
 import supabase from './config/supabase';
+import { apiKeyMiddleware } from './middlewares/auth.middleware';
 import productosRoutes from './routes/producto.routes';
 
-const app = express();
+// Cargar variables de entorno
+dotenv.config();
 
-// Middleware
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Configuración de CORS
+const corsOptions: CorsOptions = {
+  origin: '*', // Configura esto según tus necesidades de seguridad
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'x-api-key']
+};
+
+// Middlewares
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -15,61 +30,105 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-// Routes
-app.use('/productos', productosRoutes);
-
-// Health check route
+// Rutas de salud y conexión
 app.get('/health', (req: Request, res: Response) => {
-  res.status(200).json({ 
+  res.json({ 
     status: 'OK', 
     timestamp: new Date().toISOString() 
   });
 });
 
-// Test Supabase connection route
 app.get('/test-connection', async (req: Request, res: Response) => {
   try {
-    const { data, error } = await supabase
-      .from('productos')
-      .select('*')
-      .limit(1);
-
-    if (error) throw error;
-
-    res.status(200).json({ 
-      connection: 'successful', 
-      sampleData: data 
+    console.log('Intentando conexión a Supabase...');
+    console.log('Configuración de entorno:', {
+      supabaseUrl: process.env.SUPABASE_URL,
+      supabaseKeyLength: process.env.SUPABASE_KEY?.length || 'No definida'
     });
-  } catch (error) {
-    console.error('Supabase connection test failed:', error);
+
+    // Intentar listar tablas
+    const { data: tables, error: tablesError } = await supabase.rpc('list_tables');
+
+    console.log('Resultado de list_tables:', { tables, tablesError });
+
+    if (tablesError) {
+      console.error('Error listando tablas:', tablesError);
+      
+      // Si falla listar tablas, intentar consulta a productos
+      const { data, error } = await supabase
+        .from('productos')
+        .select('*')
+        .limit(1);
+
+      console.log('Resultado de consulta a productos:', { data, error });
+
+      if (error) {
+        console.error('Error en consulta a productos:', error);
+        return res.status(500).json({ 
+          connection: 'partial', 
+          error: {
+            message: error.message,
+            details: error
+          }
+        });
+      }
+
+      return res.json({ 
+        connection: 'successful', 
+        message: 'Conexión parcial establecida',
+        sampleData: data 
+      });
+    }
+
+    // Si se listan tablas exitosamente
+    res.json({ 
+      connection: 'successful', 
+      message: 'Conexión completa establecida',
+      tables: tables 
+    });
+  } catch (err) {
+    console.error('Excepción en test-connection:', err);
     res.status(500).json({ 
-      status: 'error', 
-      message: 'Failed to connect to Supabase' 
+      connection: 'failed', 
+      error: err instanceof Error ? {
+        message: err.message,
+        name: err.name,
+        stack: err.stack
+      } : String(err)
     });
   }
 });
 
+// Rutas de productos
+app.use('/productos', apiKeyMiddleware, productosRoutes);
+
 // 404 handler
 app.use((req: Request, res: Response) => {
   res.status(404).json({ 
-    status: 'error', 
-    message: 'Endpoint not found' 
+    message: 'Ruta no encontrada' 
   });
 });
 
-// Error handling middleware
+// Middleware de manejo de errores
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error(err.stack);
   res.status(500).json({ 
-    status: 'error', 
-    message: 'Something went wrong!',
-    error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    message: 'Error interno del servidor', 
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined 
   });
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+// Exportar para Netlify Functions
+export const handler = async (event: any, context: any) => {
+  return {
+    statusCode: 200,
+    body: JSON.stringify({ message: 'API lista para Netlify' })
+  };
+};
+
+// Iniciar el servidor
+const server = app.listen(PORT, () => {
+  console.log(`Servidor corriendo en puerto ${PORT}`);
 });
 
 export default app;
