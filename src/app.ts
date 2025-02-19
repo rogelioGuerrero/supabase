@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import supabase from './config/supabase';
 import { apiKeyMiddleware } from './middlewares/auth.middleware';
 import productosRoutes from './routes/producto.routes';
+import genericRoutes from './routes/generic.routes';
 
 // Cargar variables de entorno
 dotenv.config();
@@ -98,6 +99,9 @@ app.get('/test-connection', async (req: Request, res: Response) => {
     });
   }
 });
+
+// Rutas genéricas
+app.use('/api', genericRoutes);
 
 // Rutas de productos
 app.use('/productos', apiKeyMiddleware, productosRoutes);
