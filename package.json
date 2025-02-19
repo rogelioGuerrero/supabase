@@ -10,7 +10,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "lint": "eslint . --ext .ts",
-    "netlify:build": "npm install -g typescript && npm install @types/node @types/express @types/cors @supabase/supabase-js @types/zod && npm run build && npm install serverless-http && npm prune --production"
+    "netlify:build": "npm install -g typescript && npm install @types/node @types/express @types/cors @supabase/supabase-js && npm run build && npm install serverless-http && npm prune --production"
   },
   "keywords": [
     "supabase",
@@ -34,7 +34,6 @@
     "@types/express": "^4.17.21",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.14.2",
-    "@types/zod": "^3.3.0",
     "@typescript-eslint/eslint-plugin": "^6.20.0",
     "@typescript-eslint/parser": "^6.20.0",
     "eslint": "^8.56.0",
