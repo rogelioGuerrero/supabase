@@ -1,0 +1,26 @@
+[build]
+  command = "npm run build"
+  functions = "dist"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "18"
+
+[dev]
+  port = 3000
+
+[functions]
+  node_bundler = "esbuild"
+  included_files = ["dist/**", ".env"]
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type, x-api-key"

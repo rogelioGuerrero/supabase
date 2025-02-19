@@ -1,38 +1,80 @@
-# Backend API for Supabase Project
+# Backend API para Gestión de Productos
 
-## Prerequisites
+## Descripción
+API RESTful para gestión de productos utilizando Express, TypeScript y Supabase.
+
+## Requisitos Previos
 - Node.js (v18+)
 - npm
+- Cuenta de Supabase
 
-## Setup
-1. Clone the repository
-2. Copy `.env.example` to `.env` and fill in your Supabase credentials
-3. Install dependencies: `npm install`
+## Instalación
 
-## Development
-- Start development server: `npm run dev`
-- Build project: `npm run build`
-- Start production server: `npm start`
+1. Clonar el repositorio
+```bash
+git clone https://github.com/tu-usuario/backend-api-supabase.git
+cd backend-api-supabase
+```
 
-## Testing
-- Run tests: `npm test`
+2. Instalar dependencias
+```bash
+npm install
+```
 
-## Technologies
-- Express.js
-- TypeScript
-- Supabase
-- Jest (testing)
+3. Configurar variables de entorno
+Copiar `.env.example` a `.env` y completar con tus credenciales:
+- `PORT`: Puerto del servidor
+- `SUPABASE_URL`: URL de tu proyecto Supabase
+- `SUPABASE_KEY`: Clave de Supabase
+- `API_KEY`: Clave de autenticación para los endpoints
+- `NODE_ENV`: Entorno de ejecución
 
-## Project Structure
-- `src/`: Source code
-  - `config/`: Configuration files
-  - `controllers/`: Route handlers
-  - `routes/`: API route definitions
-  - `models/`: Data models
-  - `types/`: TypeScript type definitions
-- `dist/`: Compiled JavaScript files
+## Scripts
 
-## Environment Variables
-- `SUPABASE_URL`: Supabase project URL
-- `SUPABASE_KEY`: Supabase API key
-- `PORT`: Server port (default: 3000)
+- `npm run dev`: Iniciar servidor en modo desarrollo
+- `npm start`: Iniciar servidor en producción
+- `npm run build`: Compilar TypeScript
+- `npm test`: Ejecutar pruebas
+
+## Endpoints
+
+### Productos
+
+- `GET /productos`: Listar todos los productos
+- `GET /productos/:id`: Obtener producto por ID
+- `POST /productos`: Crear nuevo producto
+- `PUT /productos/:id`: Actualizar producto
+- `DELETE /productos/:id`: Eliminar producto
+
+### Autenticación
+Todos los endpoints requieren una clave API válida en el header `x-api-key`
+
+## Pruebas
+Ejecutar pruebas con:
+```bash
+.\test_endpoints.ps1
+.\test_productos_api.ps1
+```
+
+## Despliegue en Netlify
+
+1. Crear archivo `netlify.toml`:
+```toml
+[build]
+  command = "npm run build"
+  functions = "dist"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "18"
+```
+
+2. Configurar variables de entorno en Netlify
+- Ir a Netlify > Site Settings > Build & Deploy > Environment
+- Añadir variables: `SUPABASE_URL`, `SUPABASE_KEY`, `API_KEY`
+
+## Contribuciones
+Por favor, lee CONTRIBUTING.md para detalles sobre nuestro código de conducta.
+
+## Licencia
+Este proyecto está bajo Licencia MIT - ver LICENSE.md
