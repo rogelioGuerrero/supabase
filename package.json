@@ -10,7 +10,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "lint": "eslint . --ext .ts",
-    "netlify:build": "npm run build && npm install serverless-http && npm prune --production"
+    "netlify:build": "npm install -g typescript && npm run build && npm install serverless-http && npm prune --production"
   },
   "keywords": [
     "supabase",
