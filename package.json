@@ -10,7 +10,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "lint": "eslint . --ext .ts",
-    "netlify:build": "npm run build && npm prune --production"
+    "netlify:build": "npm run build && npm install serverless-http && npm prune --production"
   },
   "keywords": [
     "supabase",
@@ -26,6 +26,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "serverless-http": "^3.2.0",
     "winston": "^3.17.0",
     "zod": "^3.24.2"
   },
