@@ -1,25 +1,38 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.genericRoutes = void 0;
 const express_1 = require("express");
 const generic_controller_1 = require("../controllers/generic.controller");
-const auth_middleware_1 = require("../middlewares/auth.middleware");
-const router = (0, express_1.Router)();
-// Mapeo de controladores para diferentes tablas
-const controllerMap = {
-    'productos': new generic_controller_1.GenericController('productos'),
-    // Añadir más tablas aquí
+exports.genericRoutes = (0, express_1.Router)();
+const controllers = {
+    productos: new generic_controller_1.GenericController('productos')
 };
-// Ruta genérica para todas las operaciones
-router.post('/:tabla', auth_middleware_1.apiKeyMiddleware, // Mantener middleware de API key
-async (req, res) => {
+exports.genericRoutes.post('/:tabla', async (req, res) => {
     const { tabla } = req.params;
-    const controller = controllerMap[tabla];
-    if (!controller) {
-        return res.status(404).json({
-            error: 'Tabla no encontrada',
-            availableTables: Object.keys(controllerMap)
-        });
+    const { action, data } = req.body;
+    try {
+        const controller = controllers[tabla];
+        if (!controller) {
+            return res.status(404).json({ error: `Tabla ${tabla} no encontrada` });
+        }
+        const result = await controller.create(data);
+        res.status(201).json(result);
     }
-    return controller.handleAction(req, res);
+    catch (error) {
+        res.status(500).json({ error: error instanceof Error ? error.message : 'Error desconocido' });
+    }
 });
-exports.default = router;
+exports.genericRoutes.get('/:tabla', async (req, res) => {
+    const { tabla } = req.params;
+    try {
+        const controller = controllers[tabla];
+        if (!controller) {
+            return res.status(404).json({ error: `Tabla ${tabla} no encontrada` });
+        }
+        const result = await controller.getAll();
+        res.json(result);
+    }
+    catch (error) {
+        res.status(500).json({ error: error instanceof Error ? error.message : 'Error desconocido' });
+    }
+});
