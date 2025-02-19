@@ -101,7 +101,7 @@ app.get('/test-connection', async (req: Request, res: Response) => {
 });
 
 // Rutas genéricas
-app.use('/api', genericRoutes);
+app.use('/generic', genericRoutes);
 
 // Rutas de productos
 app.use('/productos', apiKeyMiddleware, productosRoutes);

@@ -191,21 +191,56 @@ export class GenericController<T extends GenericModel> {
 
   // Obtener registro por ID
   private async getById(req: Request, res: Response) {
-    const { id } = req.body;
+    try {
+      const { id } = req.body;
 
-    const { data: record, error } = await this.supabase
-      .from(this.tableName)
-      .select('*')
-      .eq('id', id)
-      .single();
+      // Validar que se proporcione un ID
+      if (!id) {
+        return res.status(400).json({ 
+          error: 'Datos inválidos', 
+          message: 'Se requiere un ID para obtener el registro' 
+        });
+      }
 
-    if (error) {
-      return res.status(404).json({ 
-        error: 'Registro no encontrado', 
-        details: error.message 
+      // Consulta con manejo específico para un solo registro
+      const { data, error } = await this.supabase
+        .from(this.tableName)
+        .select('*')
+        .eq('id', id)
+        .single(); // Asegura que solo se devuelva un registro
+
+      if (error) {
+        console.error(`Error al obtener registro en ${this.tableName}:`, error);
+        
+        // Manejar diferentes tipos de errores
+        if (error.code === 'PGRST116') {
+          return res.status(404).json({ 
+            error: 'Registro no encontrado', 
+            details: `No existe un registro con ID ${id} en la tabla ${this.tableName}` 
+          });
+        }
+
+        return res.status(400).json({ 
+          error: 'Error al obtener registro', 
+          details: error.message 
+        });
+      }
+
+      // Verificar si se encontró un registro
+      if (!data) {
+        return res.status(404).json({ 
+          error: 'Registro no encontrado', 
+          details: `No existe un registro con ID ${id} en la tabla ${this.tableName}` 
+        });
+      }
+
+      return res.status(200).json(data);
+    } catch (error) {
+      console.error('Error inesperado:', error);
+      return res.status(500).json({ 
+        error: 'Error interno del servidor', 
+        details: error instanceof Error ? error.message : 'Error desconocido' 
       });
     }
-
-    return res.status(200).json(record);
   }
 }
