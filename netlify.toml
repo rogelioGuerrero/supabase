@@ -16,7 +16,7 @@
   included_files = ["dist/**", ".env"]
 
 [[redirects]]
-  from = "/generic/productos"
+  from = "/generic/*"
   to = "/.netlify/functions/app"
   status = 200
 
