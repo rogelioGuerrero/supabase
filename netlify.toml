@@ -15,6 +15,11 @@
   included_files = ["dist/**", ".env"]
 
 [[redirects]]
+  from = "/productos/*"
+  to = "/.netlify/functions/app/productos"
+  status = 200
+
+[[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/app"
   status = 200
