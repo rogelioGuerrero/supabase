@@ -57,19 +57,43 @@ export class GenericController<T extends GenericModel> {
   private async create(req: Request, res: Response) {
     const { data } = req.body;
 
-    const { data: newRecord, error } = await this.supabase
-      .from(this.tableName)
-      .insert(data)
-      .select();
+    console.log(`Intentando crear registro en tabla ${this.tableName}:`, data);
 
-    if (error) {
+    // Validar que se hayan proporcionado datos
+    if (!data || Object.keys(data).length === 0) {
+      console.error('Error: No se proporcionaron datos para crear registro');
       return res.status(400).json({ 
-        error: 'Error al crear registro', 
-        details: error.message 
+        error: 'Datos inválidos', 
+        message: 'Debe proporcionar datos para crear un registro' 
       });
     }
 
-    return res.status(201).json(newRecord);
+    try {
+      const { data: newRecord, error } = await this.supabase
+        .from(this.tableName)
+        .insert(data)
+        .select();
+
+      console.log('Resultado de inserción:', { newRecord, error });
+
+      if (error) {
+        console.error(`Error al crear registro en ${this.tableName}:`, error);
+        return res.status(400).json({ 
+          error: 'Error al crear registro', 
+          details: error.message,
+          fullError: error
+        });
+      }
+
+      return res.status(201).json(newRecord);
+    } catch (catchError) {
+      console.error('Error inesperado al crear registro:', catchError);
+      return res.status(500).json({ 
+        error: 'Error interno del servidor', 
+        details: catchError instanceof Error ? catchError.message : 'Error desconocido',
+        tableName: this.tableName
+      });
+    }
   }
 
   // Actualizar un registro existente
